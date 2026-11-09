@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Dukaan Dost AI — Kirana Business Command Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+  <!-- Header & Live Status -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--mint-glow); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem;">
+        <span>●</span> Live Shop Telemetry • Asia/Kolkata
+      </div>
+      <h1 style="font-size: 2.3rem; font-weight: 800; color: #fff; font-family: var(--font-display); letter-spacing: -1px;">
+        Kirana Command Center
+      </h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem;">
+        Real-time sales, inventory valuations, and voice intelligence for your store.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <a href="/sales" class="btn-outline">
+        <span>💰 View Full Sales Log</span>
+      </a>
+      <a href="/inventory" class="btn-primary">
+        <span>📦 Manage Inventory</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 1. TODAY'S OVERVIEW (KPI TILES)                          -->
+  <!-- ======================================================== -->
+  <div class="stat-grid">
+
+    <!-- KPI 1: Today's Revenue -->
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Today's Sales Revenue</span>
+        <div class="stat-icon mint">₹</div>
+      </div>
+      <div class="stat-value" id="kpiRevenue">₹12,450</div>
+      <div class="stat-subtext" style="color: var(--mint-glow);">
+        ↑ Active real-time sales today
+      </div>
+    </div>
+
+    <!-- KPI 2: Today's Transactions -->
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Today's Transactions</span>
+        <div class="stat-icon">🛍️</div>
+      </div>
+      <div class="stat-value" id="kpiTransactions">16 Orders</div>
+      <div class="stat-subtext">Customer checkout events</div>
+    </div>
+
+    <!-- KPI 3: Units Sold -->
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Units Sold Today</span>
+        <div class="stat-icon cyan">📦</div>
+      </div>
+      <div class="stat-value" id="kpiUnits">209 Units</div>
+      <div class="stat-subtext">Across staple & grocery items</div>
+    </div>
+
+    <!-- KPI 4: Estimated Profit -->
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Estimated Gross Profit</span>
+        <div class="stat-icon gold">📈</div>
+      </div>
+      <div class="stat-value" id="kpiProfit">₹2,420</div>
+      <div class="stat-subtext" style="color: var(--gold-accent);">
+        Calculated from unit cost prices
+      </div>
+    </div>
+
+    <!-- KPI 5: Low-Stock Alerts -->
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Low-Stock Alerts</span>
+        <div class="stat-icon red">⚠️</div>
+      </div>
+      <div class="stat-value" id="kpiLowStock" style="color: var(--red-accent);">2</div>
+      <div class="stat-subtext">Items below reorder limit</div>
+    </div>
+
+    <!-- KPI 6: Retail Inventory Value -->
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Total Inventory Value</span>
+        <div class="stat-icon">🏷️</div>
+      </div>
+      <div class="stat-value" id="kpiRetailValue">₹18,650</div>
+      <div class="stat-subtext">Total retail catalogue worth</div>
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 2. ANALYTICS CHARTS & LEADERBOARD                        -->
+  <!-- ======================================================== -->
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+    <!-- Left Chart: 7-Day Revenue Trend -->
+    <div class="glass-card" style="padding: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">Weekly Sales Velocity</h2>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Daily revenue performance (₹) across the past 7 days</p>
+        </div>
+        <span style="font-size: 0.75rem; background: rgba(139, 92, 246, 0.2); color: var(--purple-glow); border: 1px solid var(--border-glass); padding: 3px 8px; border-radius: 99px; font-weight: 700;">
+          Live Data
+        </span>
+      </div>
+      <div style="height: 280px; position: relative;">
+        <canvas id="salesTrendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Right Chart: Category Distribution -->
+    <div class="glass-card" style="padding: 1.75rem;">
+      <div style="margin-bottom: 1.25rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">Category Mix</h2>
+        <p style="font-size: 0.8rem; color: var(--text-secondary);">Sales distribution by grocery department</p>
+      </div>
+      <div style="height: 280px; position: relative;">
+        <canvas id="categoryPieChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 3. RECENT SALES & LOW STOCK ACTION TILES                 -->
+  <!-- ======================================================== -->
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+
+    <!-- Recent Sales Table -->
+    <div class="glass-card" style="padding: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">Recent Customer Sales</h2>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Latest customer checkouts registered in SQLite</p>
+        </div>
+        <a href="/sales" style="font-size: 0.82rem; color: var(--purple-glow); text-decoration: none; font-weight: 700;">
+          View All Transactions →
+        </a>
+      </div>
+
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Product</th>
+              <th>Qty Sold</th>
+              <th>Amount</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="recentSalesBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Side: Best Sellers & Low Stock -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+      <!-- Low Stock Alerts Box -->
+      <div class="glass-card" style="padding: 1.5rem; border-color: rgba(245, 158, 11, 0.35);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="color: var(--gold-accent); font-size: 1.25rem;">⚠️</span>
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Low Stock Reorder Alerts</h3>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Threshold ≤ Min</span>
+        </div>
+        <div id="lowStockList">
+          <!-- Populated by dashboard.js -->
+        </div>
+      </div>
+
+      <!-- Best Sellers Leaderboard -->
+      <div class="glass-card" style="padding: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="color: var(--mint-glow); font-size: 1.25rem;">🏆</span>
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Top Selling Products</h3>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">This Week</span>
+        </div>
+        <div id="bestSellersList">
+          <!-- Populated by dashboard.js -->
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Dukaan Dost AI — Intelligent 3D Voice Assistant for Indian Kirana Stores{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+
+  <!-- ======================================================== -->
+  <!-- HERO SECTION: 3D KIRANA STORE & PRODUCT LAUNCH EXPERIENCE -->
+  <!-- ======================================================== -->
+  <section class="hero-section" style="position: relative; min-height: 88vh; display: flex; align-items: center; padding: 2rem 2rem 4rem; max-width: 1380px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; width: 100%;">
+
+      <!-- Left Hero Typography -->
+      <div class="hero-content" style="z-index: 10;">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); padding: 0.45rem 1rem; border-radius: 99px; margin-bottom: 1.5rem; box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);">
+          <span style="color: var(--mint-glow); font-size: 0.85rem;">●</span>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #c4b5fd; text-transform: uppercase; letter-spacing: 1px;">
+            Next-Gen Kirana Operating System
+          </span>
+        </div>
+
+        <h1 style="font-size: clamp(2.8rem, 5vw, 4.2rem); font-weight: 800; line-height: 1.1; letter-spacing: -1.8px; margin-bottom: 1.25rem; font-family: var(--font-display);">
+          Meet <span style="background: linear-gradient(135deg, #a855f7 0%, #06d6a0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Dukaan Dost AI</span>
+        </h1>
+
+        <h2 style="font-size: clamp(1.2rem, 2vw, 1.6rem); font-weight: 600; color: #e2e8f0; margin-bottom: 1rem; line-height: 1.4;">
+          Your intelligent voice assistant for a smarter kirana store.
+        </h2>
+
+        <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 520px; margin-bottom: 2.25rem; line-height: 1.7;">
+          Talk to your shop. Manage inventory. Track sales. Grow your business in your own language — Telugu, English or Hindi.
+        </p>
+
+        <!-- CTA Action Buttons -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+          <a href="#voice-assistant-section" id="heroStartTalkingBtn" class="btn-primary btn-mint magnetic-btn" style="padding: 0.85rem 1.85rem; font-size: 1.05rem;">
+            <span>🎙️ Start Talking</span>
+          </a>
+          <a href="/dashboard" class="btn-outline magnetic-btn" style="padding: 0.85rem 1.85rem; font-size: 1.05rem;">
+            <span>📊 Explore Dashboard →</span>
+          </a>
+        </div>
+
+        <!-- Quick Trust Badges -->
+        <div style="display: flex; gap: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-glass); padding-top: 1.5rem;">
+          <div>
+            <div style="font-size: 1.35rem; font-weight: 800; color: #fff;">100% Real</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Database Analytics</div>
+          </div>
+          <div>
+            <div style="font-size: 1.35rem; font-weight: 800; color: var(--mint-glow);">Gnani AI</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Prisma & Timbre Engine</div>
+          </div>
+          <div>
+            <div style="font-size: 1.35rem; font-weight: 800; color: var(--purple-glow);">తెలుగు + EN</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Multilingual Speech</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Three.js 3D Kirana Store Scene Container -->
+      <div class="hero-3d-wrapper" style="position: relative; height: 550px; display: flex; align-items: center; justify-content: center;">
+        <div id="kirana3DContainer" style="width: 100%; height: 100%; border-radius: var(--radius-lg); position: relative; overflow: hidden;">
+          <!-- 3D Canvas will be injected here by Three.js -->
+        </div>
+
+        <!-- Floating Badge Overlay -->
+        <div style="position: absolute; bottom: 20px; right: 20px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid var(--border-glass); padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.75rem; color: var(--text-secondary); pointer-events: none; z-index: 5;">
+          ✨ Move cursor to explore 3D Kirana Shop
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 2: SPEAKING AI ASSISTANT (MAIN ATTRACTION)       -->
+  <!-- ======================================================== -->
+  <section id="voice-assistant-section" style="padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; position: relative;">
+    <div class="glass-card" style="padding: 3rem 2.5rem; border-color: rgba(139, 92, 246, 0.35); box-shadow: 0 0 50px rgba(139, 92, 246, 0.25);">
+
+      <div style="text-align: center; max-width: 720px; margin: 0 auto 2.5rem;">
+        <span style="font-size: 0.8rem; font-weight: 800; color: var(--mint-glow); text-transform: uppercase; letter-spacing: 1.5px;">
+          Live Speaking Assistant
+        </span>
+        <h2 style="font-size: 2.4rem; font-weight: 800; margin: 0.5rem 0 0.75rem; font-family: var(--font-display);">
+          “Namaste! Welcome to Dukaan Dost AI.”
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 1.05rem;">
+          Your voice is all you need. Ask about today’s sales, check rice or oil stock, or add products naturally.
+        </p>
+      </div>
+
+      <!-- Assistant Central Interactive Visualizer -->
+      <div class="ai-orb-container">
+        <!-- Glowing 3D AI Orb with click to talk -->
+        <div id="aiOrb" class="ai-orb" title="Click to Speak / Listen">
+          <span style="font-size: 2.2rem;">🎙️</span>
+        </div>
+
+        <!-- Animated Soundwave Bars -->
+        <div id="soundWaves" class="sound-waves">
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+
+        <!-- Assistant Status Indicator -->
+        <div id="assistantStatus" class="assistant-status idle">
+          <span class="status-dot"></span>
+          <span class="status-text">Dukaan Dost Ready</span>
+        </div>
+
+        <!-- Live Spoken Transcript Bubble -->
+        <div style="margin-top: 1.5rem; text-align: center; max-width: 680px;">
+          <div id="liveTranscript" style="font-size: 1.25rem; font-weight: 600; color: #ffffff; min-height: 2.5rem; font-style: italic;">
+            “నమస్కారం! నేను మీ దుకాన్ దోస్త్ AI. మీ షాప్ అమ్మకాలు, స్టాక్, ఆదాయం గురించి అడగండి.”
+          </div>
+        </div>
+
+        <!-- Quick Assistant Control Bar -->
+        <div style="display: flex; gap: 1rem; align-items: center; margin-top: 2rem; flex-wrap: wrap; justify-content: center;">
+          <button id="enableAudioBtn" class="btn-primary btn-mint" style="padding: 0.7rem 1.4rem;">
+            🔊 Enable Voice & Speak
+          </button>
+          <button id="replayGreetingBtn" class="btn-outline" style="padding: 0.7rem 1.4rem;">
+            🔄 Replay Greeting
+          </button>
+          <button id="toggleMuteBtn" class="btn-outline" style="padding: 0.7rem 1.4rem;">
+            <span id="muteIcon">🔇</span> <span id="muteLabel">Mute Audio</span>
+          </button>
+          <a href="/assistant" class="btn-outline" style="padding: 0.7rem 1.4rem;">
+            ⚡ Open Fullscreen Assistant
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Voice Queries Suggestion Chips -->
+      <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-glass);">
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 1rem; text-align: center;">
+          💡 Try clicking or saying these real kirana queries:
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+          <button class="voice-chip btn-outline" data-cmd="ఈరోజు మొత్తం ఎంత అమ్మకాలు జరిగాయి?">
+            “ఈరోజు ఎంత అమ్మకాలు జరిగాయి?”
+          </button>
+          <button class="voice-chip btn-outline" data-cmd="How much did I sell today?">
+            “How much did I sell today?”
+          </button>
+          <button class="voice-chip btn-outline" data-cmd="బియ్యం ఎంత ఉంది?">
+            “బియ్యం ఎంత ఉంది?”
+          </button>
+          <button class="voice-chip btn-outline" data-cmd="How much rice is left?">
+            “How much rice is left?”
+          </button>
+          <button class="voice-chip btn-outline" data-cmd="Show low-stock products">
+            “Show low-stock products”
+          </button>
+          <button class="voice-chip btn-outline" data-cmd="10 కేజీల బియ్యం చేర్చు">
+            “10 కేజీల బియ్యం చేర్చు”
+          </button>
+          <button class="voice-chip btn-outline" data-cmd="Sell 2 soap">
+            “Sell 2 soap”
+          </button>
+        </div>
+      </div>
+
+      <!-- Conversation Log Drawer (Compact) -->
+      <div id="chatHistory" style="margin-top: 2rem; max-height: 240px; overflow-y: auto; padding: 1rem; background: rgba(10, 14, 28, 0.6); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+        <!-- Messages appear dynamically -->
+      </div>
+
+      <!-- Text Command Fallback Input -->
+      <form id="textCommandForm" style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+        <input type="text" id="textCommandInput" placeholder="Type a kirana question in Telugu or English (e.g., 'What is today\'s revenue?' or 'బియ్యం ఎంత ఉంది?')" style="flex: 1; background: rgba(18, 24, 46, 0.8); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; color: #fff; font-size: 0.95rem; outline: none;">
+        <button type="submit" class="btn-primary" style="padding: 0.85rem 1.5rem;">
+          Send
+        </button>
+      </form>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 3: FEATURE SHOWCASE (FUTURISTIC CAPABILITIES)    -->
+  <!-- ======================================================== -->
+  <section style="padding: 4rem 2rem; max-width: 1380px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <span style="font-size: 0.8rem; font-weight: 800; color: var(--purple-glow); text-transform: uppercase; letter-spacing: 1.5px;">
+        Empowering Local Commerce
+      </span>
+      <h2 style="font-size: 2.4rem; font-weight: 800; margin-top: 0.5rem; font-family: var(--font-display);">
+        Engineered for India's Fast-Paced Retail
+      </h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.75rem;">
+
+      <!-- Card 1 -->
+      <div class="glass-card tilt-card">
+        <div class="stat-icon mint" style="width: 48px; height: 48px; font-size: 1.5rem; margin-bottom: 1.25rem;">
+          🎙️
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">
+          Gnani AI Prisma & Timbre
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+          Accurate speech recognition that understands Indian shopkeeper accents, dialects, and code-mixed Telugu/English speech effortlessly.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="glass-card tilt-card">
+        <div class="stat-icon gold" style="width: 48px; height: 48px; font-size: 1.5rem; margin-bottom: 1.25rem;">
+          ⚡
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">
+          Real SQLite Calculations
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+          Never hallucinated figures. Every sales rupee, transaction count, profit margin, and stock unit is queried live from your shop database.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="glass-card tilt-card">
+        <div class="stat-icon cyan" style="width: 48px; height: 48px; font-size: 1.5rem; margin-bottom: 1.25rem;">
+          📄
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">
+          Multi-Format Data Ingestion
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+          Upload distributor PDF invoices, Excel spreadsheets, CSVs, bill photos, or voice audio files with an instant preview & confirm workflow.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 4: CTA TO DASHBOARD                              -->
+  <!-- ======================================================== -->
+  <section style="padding: 4rem 2rem 6rem; max-width: 1100px; margin: 0 auto;">
+    <div class="glass-card" style="background: linear-gradient(135deg, rgba(20, 27, 52, 0.95), rgba(30, 27, 75, 0.95)); border: 1px solid var(--purple-glow); padding: 3.5rem 2.5rem; text-align: center; border-radius: var(--radius-lg);">
+      <h2 style="font-size: 2.4rem; font-weight: 800; color: #fff; margin-bottom: 1rem; font-family: var(--font-display);">
+        Ready to supercharge your kirana store?
+      </h2>
+      <p style="color: #cbd5e1; font-size: 1.1rem; max-width: 620px; margin: 0 auto 2rem;">
+        Experience seamless voice inventory, automated restock alerts, and live revenue analytics right now.
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/dashboard" class="btn-primary btn-mint magnetic-btn" style="padding: 0.9rem 2rem; font-size: 1.1rem;">
+          Launch Business Dashboard 🚀
+        </a>
+        <a href="/upload" class="btn-outline magnetic-btn" style="padding: 0.9rem 2rem; font-size: 1.1rem;">
+          Upload Product Invoices 📄
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/three-scene.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize 3D Kirana Store Scene
+    if (window.initKirana3DScene) {
+      window.initKirana3DScene('kirana3DContainer');
+    }
+
+    // 2. Initialize Voice Assistant Engine on Landing Page
+    const assistant = new VoiceAssistantEngine({
+      defaultLanguage: 'te-IN',
+      orbId: 'aiOrb',
+      statusId: 'assistantStatus',
+      transcriptId: 'liveTranscript',
+      wavesId: 'soundWaves',
+      historyId: 'chatHistory',
+      langSelectorId: 'langSelector'
+    });
+
+    // Enable voice on "Start Talking" button click
+    const heroBtn = document.getElementById('heroStartTalkingBtn');
+    if (heroBtn) {
+      heroBtn.addEventListener('click', (e) => {
+        assistant.playGreeting(true);
+      });
+    }
+
+    const enableBtn = document.getElementById('enableAudioBtn');
+    if (enableBtn) {
+      enableBtn.addEventListener('click', () => {
+        assistant.playGreeting(true);
+        enableBtn.style.display = 'none';
+      });
+    }
+
+    const replayBtn = document.getElementById('replayGreetingBtn');
+    if (replayBtn) {
+      replayBtn.addEventListener('click', () => {
+        assistant.playGreeting(true);
+      });
+    }
+
+    const muteBtn = document.getElementById('toggleMuteBtn');
+    const muteLabel = document.getElementById('muteLabel');
+    const muteIcon = document.getElementById('muteIcon');
+    if (muteBtn) {
+      muteBtn.addEventListener('click', () => {
+        assistant.isMuted = !assistant.isMuted;
+        if (assistant.isMuted) {
+          muteLabel.textContent = 'Unmute Audio';
+          muteIcon.textContent = '🔊';
+        } else {
+          muteLabel.textContent = 'Mute Audio';
+          muteIcon.textContent = '🔇';
+        }
+      });
+    }
+
+    // Quick suggestion chips
+    document.querySelectorAll('.voice-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cmd = chip.getAttribute('data-cmd');
+        assistant.sendCommand(cmd);
+      });
+    });
+
+    // Text fallback form
+    const form = document.getElementById('textCommandForm');
+    const input = document.getElementById('textCommandInput');
+    if (form && input) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (text) {
+          assistant.sendCommand(text);
+          input.value = '';
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

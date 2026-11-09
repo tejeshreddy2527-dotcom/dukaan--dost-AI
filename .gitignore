@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+instance/*.db
+uploads/*.wav
+uploads/*.mp3
+uploads/*.ogg
+uploads/*.pdf
+uploads/*.xlsx
+.pytest_cache/

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dukaan Dost AI — Intelligent Kirana Voice Assistant{% endblock %}</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans, Inter, Noto Sans Telugu -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <!-- Chart.js & Three.js via reliable CDNs with local fallbacks -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Ambient Dynamic Lighting Background -->
+  <div class="ambient-glow">
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+    <div class="glow-orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand-link">
+        <div class="brand-orb">✨</div>
+        <div class="brand-text">
+          <h1>Dukaan Dost AI <span class="brand-badge">Gnani AI</span></h1>
+          <p>Smart Voice Kirana Companion</p>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">🏠 Home</a></li>
+        <li><a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">📊 Dashboard</a></li>
+        <li><a href="/assistant" class="nav-link {% if request.path == '/assistant' %}active{% endif %}">🎙️ AI Assistant</a></li>
+        <li><a href="/inventory" class="nav-link {% if request.path == '/inventory' %}active{% endif %}">📦 Inventory</a></li>
+        <li><a href="/sales" class="nav-link {% if request.path == '/sales' %}active{% endif %}">💰 Sales</a></li>
+        <li><a href="/upload" class="nav-link {% if request.path == '/upload' %}active{% endif %}">📁 Upload Data</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Language Selector -->
+        <select id="langSelector" class="lang-selector" aria-label="Select Assistant Language">
+          <option value="te-IN">తెలుగు (Telugu)</option>
+          <option value="en-IN">English (Indian)</option>
+          <option value="hi-IN">हिंदी (Hindi)</option>
+        </select>
+
+        <a href="/assistant" class="btn-primary magnetic-btn">
+          <span>🎙️ Start Talking</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Main Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center; font-weight: 700; color: #fff;">
+        <span>✨ Dukaan Dost AI</span>
+        <span style="color: var(--purple-glow);">•</span>
+        <span>Empowering 12 Million Indian Kirana Stores</span>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">
+        Powered by <strong style="color: var(--mint-glow);">Gnani AI</strong> Prisma (Speech-to-Text) & Timbre (Text-to-Speech) • SQLite Real-Time Engine
+      </p>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+        Multilingual AI for Bharat — Telugu • English • Hindi
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/cursor.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/voice-assistant.js') }}"></script>
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+"""Normalize typed shopkeeper instructions."""

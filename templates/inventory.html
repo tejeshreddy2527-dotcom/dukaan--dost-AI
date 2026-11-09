@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block title %}Dukaan Dost AI — Inventory Catalogue & Stock Management{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+  <!-- Header & Add Product Action -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="color: var(--mint-glow); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem;">
+        Catalogue Management
+      </div>
+      <h1 style="font-size: 2.3rem; font-weight: 800; color: #fff; font-family: var(--font-display); letter-spacing: -1px;">
+        Kirana Product Inventory
+      </h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem;">
+        Track stock balances, unit prices, cost thresholds, and restock alerts.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/upload" class="btn-outline">
+        <span>📄 Import Invoices / Excel</span>
+      </a>
+      <button id="openAddModalBtn" class="btn-primary btn-mint">
+        <span>＋ Add New Product</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter & Search Bar -->
+  <div class="glass-card" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+    <div style="display: flex; gap: 1rem; flex: 1; min-width: 280px;">
+      <input type="text" id="inventorySearch" placeholder="🔍 Search product name (e.g. Rice, Dal, Soap)..." style="flex: 1; background: rgba(18, 24, 46, 0.8); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 1rem; color: #fff; font-size: 0.9rem; outline: none;">
+
+      <select id="categoryFilter" class="lang-selector" style="padding: 0.65rem 1rem;">
+        <option value="all">All Categories</option>
+        <option value="Staples">Staples</option>
+        <option value="Oils & Ghee">Oils & Ghee</option>
+        <option value="Personal Care">Personal Care</option>
+        <option value="Beverages">Beverages</option>
+        <option value="Dairy">Dairy</option>
+        <option value="Snacks">Snacks</option>
+        <option value="Spices">Spices</option>
+        <option value="Home Care">Home Care</option>
+      </select>
+
+      <select id="stockFilter" class="lang-selector" style="padding: 0.65rem 1rem;">
+        <option value="all">All Stock Statuses</option>
+        <option value="low">Low Stock Only</option>
+        <option value="ok">Healthy Stock Only</option>
+      </select>
+    </div>
+
+    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+      Showing <strong id="productCounter" style="color: #fff;">0</strong> products
+    </div>
+  </div>
+
+  <!-- Inventory Data Table -->
+  <div class="glass-card" style="padding: 0;">
+    <div class="data-table-container" style="border: none;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>In Stock</th>
+            <th>Retail Price</th>
+            <th>Cost Price</th>
+            <th>Alert Limit</th>
+            <th>Stock Health</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryTableBody">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div id="addProductModal" class="modal-backdrop">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff;">Add New Kirana Product</h2>
+      <button class="close-modal-btn" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">✕</button>
+    </div>
+
+    <form id="addProductForm">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div style="grid-column: span 2;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Product Name *</label>
+          <input type="text" name="name" required placeholder="e.g. Basmati Rice, Tata Salt" style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Category</label>
+          <input type="text" name="category" value="General" placeholder="Staples, Dairy, Spices..." style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Unit</label>
+          <input type="text" name="unit" value="kg" placeholder="kg, L, pcs, pkt" style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Opening Quantity</label>
+          <input type="number" step="0.1" name="quantity" value="20" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Selling Price (₹) *</label>
+          <input type="number" step="0.5" name="price" value="50" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Cost Price (₹)</label>
+          <input type="number" step="0.5" name="cost_price" value="40" style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Low-Stock Alert Level</label>
+          <input type="number" step="1" name="low_stock_threshold" value="5" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-outline close-modal-btn">Cancel</button>
+        <button type="submit" class="btn-primary btn-mint">Save to Catalogue</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div id="editProductModal" class="modal-backdrop">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff;">Edit Product</h2>
+      <button class="close-edit-modal-btn" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">✕</button>
+    </div>
+
+    <form id="editProductForm">
+      <input type="hidden" name="id" id="editProdId">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div style="grid-column: span 2;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Product Name</label>
+          <input type="text" name="name" id="editProdName" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Category</label>
+          <input type="text" name="category" id="editProdCategory" style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Unit</label>
+          <input type="text" name="unit" id="editProdUnit" style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Quantity</label>
+          <input type="number" step="0.1" name="quantity" id="editProdQty" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Selling Price (₹)</label>
+          <input type="number" step="0.5" name="price" id="editProdPrice" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Cost Price (₹)</label>
+          <input type="number" step="0.5" name="cost_price" id="editProdCost" style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Alert Threshold</label>
+          <input type="number" step="1" name="low_stock_threshold" id="editProdThresh" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-outline close-edit-modal-btn">Cancel</button>
+        <button type="submit" class="btn-primary">Update Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let allProducts = [];
+
+  const tableBody = document.getElementById('inventoryTableBody');
+  const counterEl = document.getElementById('productCounter');
+  const searchInput = document.getElementById('inventorySearch');
+  const categoryFilter = document.getElementById('categoryFilter');
+  const stockFilter = document.getElementById('stockFilter');
+
+  async function loadProducts() {
+    try {
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      allProducts = data.products || [];
+      renderProducts();
+    } catch (e) {
+      console.error('Failed to load products:', e);
+    }
+  }
+
+  function renderProducts() {
+    const query = searchInput.value.toLowerCase().trim();
+    const cat = categoryFilter.value;
+    const stockStatus = stockFilter.value;
+
+    const filtered = allProducts.filter(p => {
+      const matchSearch = p.name.toLowerCase().includes(query) || (p.category && p.category.toLowerCase().includes(query));
+      const matchCat = cat === 'all' || p.category === cat;
+      const isLow = p.quantity <= p.low_stock_threshold;
+      const matchStock = stockStatus === 'all' || (stockStatus === 'low' ? isLow : !isLow);
+      return matchSearch && matchCat && matchStock;
+    });
+
+    counterEl.textContent = filtered.length;
+
+    if (filtered.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">No matching products found.</td></tr>`;
+      return;
+    }
+
+    tableBody.innerHTML = filtered.map(p => {
+      const isOut = p.quantity === 0;
+      const isLow = p.quantity <= p.low_stock_threshold && !isOut;
+      const badgeClass = isOut ? 'badge-out-stock' : (isLow ? 'badge-low-stock' : 'badge-in-stock');
+      const badgeLabel = isOut ? 'Out of Stock' : (isLow ? 'Low Stock' : 'Healthy');
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight: 700; color: #fff;">${p.name}</div>
+          </td>
+          <td>
+            <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px; color: var(--text-secondary);">
+              ${p.category || 'General'}
+            </span>
+          </td>
+          <td style="font-weight: 700; font-size: 1rem; color: #fff;">
+            ${p.quantity} <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">${p.unit}</span>
+          </td>
+          <td style="font-weight: 700; color: var(--mint-glow);">₹${p.price.toFixed(2)}</td>
+          <td style="color: var(--text-secondary);">₹${(p.cost_price || 0).toFixed(2)}</td>
+          <td style="color: var(--text-muted);">${p.low_stock_threshold} ${p.unit}</td>
+          <td>
+            <span class="badge-stock ${badgeClass}">● ${badgeLabel}</span>
+          </td>
+          <td style="text-align: right;">
+            <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
+              <button class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="quickAddStock('${p.name}')">
+                + Stock
+              </button>
+              <button class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="openEditModal(${p.id})">
+                ✎ Edit
+              </button>
+              <button class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--red-accent); border-color: rgba(239,68,68,0.3);" onclick="deleteProd(${p.id}, '${p.name}')">
+                ✕
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Live filter bindings
+  searchInput.addEventListener('input', renderProducts);
+  categoryFilter.addEventListener('change', renderProducts);
+  stockFilter.addEventListener('change', renderProducts);
+
+  // Modal Handlers
+  const addModal = document.getElementById('addProductModal');
+  const editModal = document.getElementById('editProductModal');
+
+  document.getElementById('openAddModalBtn').addEventListener('click', () => {
+    addModal.classList.add('open');
+  });
+
+  document.querySelectorAll('.close-modal-btn').forEach(b => {
+    b.addEventListener('click', () => addModal.classList.remove('open'));
+  });
+
+  document.querySelectorAll('.close-edit-modal-btn').forEach(b => {
+    b.addEventListener('click', () => editModal.classList.remove('open'));
+  });
+
+  // Submit Add Product Form
+  document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const payload = Object.fromEntries(fd.entries());
+
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        addModal.classList.remove('open');
+        e.target.reset();
+        loadProducts();
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert('Error saving product: ' + err.message);
+    }
+  });
+
+  // Open Edit Modal
+  window.openEditModal = function(id) {
+    const prod = allProducts.find(p => p.id === id);
+    if (!prod) return;
+
+    document.getElementById('editProdId').value = prod.id;
+    document.getElementById('editProdName').value = prod.name;
+    document.getElementById('editProdCategory').value = prod.category || 'General';
+    document.getElementById('editProdUnit').value = prod.unit;
+    document.getElementById('editProdQty').value = prod.quantity;
+    document.getElementById('editProdPrice').value = prod.price;
+    document.getElementById('editProdCost').value = prod.cost_price || 0;
+    document.getElementById('editProdThresh').value = prod.low_stock_threshold;
+
+    editModal.classList.add('open');
+  };
+
+  // Submit Edit Form
+  document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const payload = Object.fromEntries(fd.entries());
+    const pid = payload.id;
+
+    try {
+      const res = await fetch(`/api/products/${pid}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        editModal.classList.remove('open');
+        loadProducts();
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert('Error updating product: ' + err.message);
+    }
+  });
+
+  // Quick Add Stock
+  window.quickAddStock = function(name) {
+    const qty = prompt(`Enter quantity of ${name} to add:`, "10");
+    if (qty && parseFloat(qty) > 0) {
+      fetch('/api/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: `Add ${qty} ${name}`, confirmed: true })
+      }).then(r => r.json()).then(data => {
+        alert(data.reply);
+        loadProducts();
+      });
+    }
+  };
+
+  // Delete Product
+  window.deleteProd = async function(id, name) {
+    if (!confirm(`Are you sure you want to remove ${name} from your catalogue?`)) return;
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        loadProducts();
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert('Error deleting product: ' + err.message);
+    }
+  };
+
+  loadProducts();
+});
+</script>
+{% endblock %}

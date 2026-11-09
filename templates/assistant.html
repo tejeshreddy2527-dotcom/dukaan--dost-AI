@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Dukaan Dost AI — Full-Screen Voice Assistant{% endblock %}
+
+{% block content %}
+<div class="assistant-page-container" style="max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; min-height: 86vh; display: flex; flex-direction: column;">
+
+  <!-- Header & Language Switcher -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--purple-glow); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+        <span>●</span> Gnani Prisma & Timbre Enabled
+      </div>
+      <h1 style="font-size: 2.2rem; font-weight: 800; color: #fff; font-family: var(--font-display); letter-spacing: -1px;">
+        Dukaan Dost Voice Companion
+      </h1>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <button id="clearChatBtn" class="btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+        🗑️ Clear Chat
+      </button>
+      <button id="pageMuteBtn" class="btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+        <span id="pageMuteIcon">🔇</span> <span id="pageMuteLabel">Mute</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Giant Interactive 3D AI Orb Section -->
+  <div class="glass-card" style="padding: 2.5rem 1.5rem; text-align: center; margin-bottom: 1.5rem; position: relative;">
+    <div class="ai-orb-container" style="padding: 1rem 0;">
+
+      <!-- Glowing AI Orb -->
+      <div id="fullAiOrb" class="ai-orb" style="width: 160px; height: 160px; font-size: 3rem;" title="Click to Speak / Stop">
+        🎙️
+      </div>
+
+      <!-- Sound Waves -->
+      <div id="fullSoundWaves" class="sound-waves" style="height: 52px; margin-top: 1.5rem;">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+
+      <!-- Status Pill -->
+      <div id="fullAssistantStatus" class="assistant-status idle">
+        <span class="status-dot"></span>
+        <span class="status-text">Click the Orb or Press Mic to Speak</span>
+      </div>
+
+      <!-- Live Speech Bubble -->
+      <div style="margin-top: 1.5rem; max-width: 650px; margin-left: auto; margin-right: auto;">
+        <div id="fullLiveTranscript" style="font-size: 1.25rem; font-weight: 600; color: #ffffff; min-height: 2.5rem; font-style: italic;">
+          “నమస్కారం! మీ షాప్ అమ్మకాలు, స్టాక్ లేదా లాభం గురించి అడగండి.”
+        </div>
+      </div>
+
+      <!-- Main Controls Row -->
+      <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; margin-top: 1.75rem; flex-wrap: wrap;">
+        <button id="fullMicBtn" class="btn-primary btn-mint magnetic-btn" style="padding: 0.85rem 1.85rem; font-size: 1.05rem;">
+          <span id="micBtnText">🎙️ Tap to Speak</span>
+        </button>
+        <button id="fullGreetingBtn" class="btn-outline" style="padding: 0.85rem 1.4rem;">
+          🔄 Replay Greeting
+        </button>
+        <label for="audioFileInput" class="btn-outline" style="padding: 0.85rem 1.4rem; cursor: pointer;">
+          📁 Upload Audio
+        </label>
+        <input id="audioFileInput" type="file" accept="audio/*,.wav,.mp3,.ogg,.flac,.aac,.m4a,.wma,.aiff,.opus,.webm,.3gp" hidden>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Conversation History Log -->
+  <div class="glass-card" style="flex: 1; padding: 1.5rem; display: flex; flex-direction: column; min-height: 320px;">
+    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 1rem; display: flex; justify-content: space-between;">
+      <span>Conversation History</span>
+      <span style="font-size: 0.75rem; color: var(--mint-glow);">Real-Time SQLite & Voice Responses</span>
+    </div>
+
+    <div id="fullChatHistory" style="flex: 1; overflow-y: auto; max-height: 380px; padding: 0.5rem;">
+      <!-- Message bubbles will be added here -->
+    </div>
+
+    <!-- Suggested Query Chips -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; margin-bottom: 0.75rem;">
+      <button class="voice-chip-full btn-outline" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" data-cmd="ఈరోజు మొత్తం ఎంత సేల్ అయింది?">
+        “ఈరోజు ఎంత సేల్ అయింది?”
+      </button>
+      <button class="voice-chip-full btn-outline" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" data-cmd="What is today's revenue?">
+        “What is today's revenue?”
+      </button>
+      <button class="voice-chip-full btn-outline" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" data-cmd="బియ్యం ఎంత ఉంది?">
+        “బియ్యం ఎంత ఉంది?”
+      </button>
+      <button class="voice-chip-full btn-outline" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" data-cmd="Show low-stock products">
+        “Show low-stock products”
+      </button>
+      <button class="voice-chip-full btn-outline" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" data-cmd="Add 10 packets of rice">
+        “Add 10 packets of rice”
+      </button>
+    </div>
+
+    <!-- Fallback Text Form -->
+    <form id="fullCommandForm" style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+      <input type="text" id="fullCommandInput" placeholder="Type instructions in Telugu, English or Hindi..." style="flex: 1; background: rgba(18, 24, 46, 0.85); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.75rem 1rem; color: #fff; font-size: 0.95rem; outline: none;">
+      <button type="submit" class="btn-primary" style="padding: 0.75rem 1.5rem;">
+        Send
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const assistant = new VoiceAssistantEngine({
+    defaultLanguage: 'te-IN',
+    orbId: 'fullAiOrb',
+    statusId: 'fullAssistantStatus',
+    transcriptId: 'fullLiveTranscript',
+    wavesId: 'fullSoundWaves',
+    historyId: 'fullChatHistory',
+    langSelectorId: 'langSelector'
+  });
+
+  const micBtn = document.getElementById('fullMicBtn');
+  const micBtnText = document.getElementById('micBtnText');
+  const audioFileInput = document.getElementById('audioFileInput');
+
+  audioFileInput.addEventListener('change', async () => {
+    const file = audioFileInput.files[0];
+    if (file) await assistant.processAudioFile(file);
+    audioFileInput.value = '';
+  });
+
+  micBtn.addEventListener('click', () => {
+    if (assistant.status === 'listening') {
+      assistant.stopListening();
+      micBtnText.textContent = '🎙️ Tap to Speak';
+      micBtn.classList.remove('btn-primary');
+      micBtn.classList.add('btn-mint');
+    } else {
+      assistant.startListening();
+      micBtnText.textContent = '⏹️ Stop Listening';
+      micBtn.classList.remove('btn-mint');
+      micBtn.classList.add('btn-primary');
+    }
+  });
+
+  // Replay greeting
+  document.getElementById('fullGreetingBtn').addEventListener('click', () => {
+    assistant.playGreeting(true);
+  });
+
+  // Mute toggle
+  const muteBtn = document.getElementById('pageMuteBtn');
+  const muteLabel = document.getElementById('pageMuteLabel');
+  const muteIcon = document.getElementById('pageMuteIcon');
+  muteBtn.addEventListener('click', () => {
+    assistant.isMuted = !assistant.isMuted;
+    if (assistant.isMuted) {
+      muteLabel.textContent = 'Unmute';
+      muteIcon.textContent = '🔊';
+    } else {
+      muteLabel.textContent = 'Mute';
+      muteIcon.textContent = '🔇';
+    }
+  });
+
+  // Clear chat
+  document.getElementById('clearChatBtn').addEventListener('click', () => {
+    document.getElementById('fullChatHistory').innerHTML = '';
+  });
+
+  // Chips
+  document.querySelectorAll('.voice-chip-full').forEach(chip => {
+    chip.addEventListener('click', () => {
+      assistant.sendCommand(chip.getAttribute('data-cmd'));
+    });
+  });
+
+  // Text form
+  const form = document.getElementById('fullCommandForm');
+  const input = document.getElementById('fullCommandInput');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (text) {
+      assistant.sendCommand(text);
+      input.value = '';
+    }
+  });
+
+  // Auto-speak initial greeting
+  assistant.playGreeting(false);
+});
+</script>
+{% endblock %}

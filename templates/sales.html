@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Dukaan Dost AI — Sales History & Transactions{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="color: var(--mint-glow); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem;">
+        Financial Logs & Auditing
+      </div>
+      <h1 style="font-size: 2.3rem; font-weight: 800; color: #fff; font-family: var(--font-display); letter-spacing: -1px;">
+        Sales & Transaction Records
+      </h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem;">
+        Detailed audit trail of all customer purchases recorded in SQLite.
+      </p>
+    </div>
+
+    <button id="openRecordSaleBtn" class="btn-primary btn-mint">
+      <span>＋ Record New Sale</span>
+    </button>
+  </div>
+
+  <!-- KPI Banner -->
+  <div class="stat-grid" style="margin-bottom: 2rem;">
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Today's Revenue</span>
+        <div class="stat-icon mint">₹</div>
+      </div>
+      <div class="stat-value" id="salesPageTodayRev">₹12,450</div>
+      <div class="stat-subtext" style="color: var(--mint-glow);">Real-time checkout sum</div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Transactions Today</span>
+        <div class="stat-icon">🧾</div>
+      </div>
+      <div class="stat-value" id="salesPageTodayTx">16 Orders</div>
+      <div class="stat-subtext">Completed sales transactions</div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Units Sold Today</span>
+        <div class="stat-icon cyan">📦</div>
+      </div>
+      <div class="stat-value" id="salesPageTodayUnits">209 Units</div>
+      <div class="stat-subtext">Groceries & staples moved</div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-header">
+        <span class="stat-label">Estimated Gross Profit</span>
+        <div class="stat-icon gold">📈</div>
+      </div>
+      <div class="stat-value" id="salesPageTodayProfit">₹2,420</div>
+      <div class="stat-subtext" style="color: var(--gold-accent);">Revenue minus product cost</div>
+    </div>
+  </div>
+
+  <!-- Filters & Date Range Controls -->
+  <div class="glass-card" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button class="date-quick-btn btn-outline active" data-days="0">Today</button>
+      <button class="date-quick-btn btn-outline" data-days="1">Yesterday</button>
+      <button class="date-quick-btn btn-outline" data-days="7">Last 7 Days</button>
+      <button class="date-quick-btn btn-outline" data-days="30">Last 30 Days</button>
+      <button class="date-quick-btn btn-outline" data-days="all">All Time</button>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <input type="text" id="salesSearchInput" placeholder="🔍 Search product name..." style="background: rgba(18, 24, 46, 0.8); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.55rem 0.85rem; color: #fff; font-size: 0.85rem; outline: none;">
+      <input type="date" id="startDateInput" class="lang-selector" style="color-scheme: dark;">
+      <span style="color: var(--text-muted);">to</span>
+      <input type="date" id="endDateInput" class="lang-selector" style="color-scheme: dark;">
+      <button id="applyCustomDateBtn" class="btn-primary" style="padding: 0.55rem 1rem; font-size: 0.85rem;">Filter</button>
+    </div>
+  </div>
+
+  <!-- Sales Transactions Table -->
+  <div class="glass-card" style="padding: 0;">
+    <div class="data-table-container" style="border: none;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tx ID</th>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total Amount</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody id="salesTableBody">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUICK RECORD SALE MODAL -->
+<div id="recordSaleModal" class="modal-backdrop">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff;">Record Customer Sale</h2>
+      <button class="close-sale-modal-btn" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">✕</button>
+    </div>
+
+    <form id="recordSaleForm">
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Select Product *</label>
+        <select id="saleProductSelect" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+          <!-- Dynamically loaded -->
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Quantity to Sell *</label>
+        <input type="number" step="0.5" id="saleQuantityInput" value="1" min="0.1" required style="width: 100%; background: rgba(18, 24, 46, 0.9); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; color: #fff;">
+      </div>
+
+      <div style="padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">Estimated Sale Value:</span>
+          <strong id="saleValuePreview" style="color: var(--mint-glow); font-size: 1.25rem;">₹0.00</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn-outline close-sale-modal-btn">Cancel</button>
+        <button type="submit" class="btn-primary btn-mint">Record Transaction</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tableBody = document.getElementById('salesTableBody');
+  const searchInput = document.getElementById('salesSearchInput');
+  const startInput = document.getElementById('startDateInput');
+  const endInput = document.getElementById('endDateInput');
+  let currentDaysFilter = 0; // 0 = today
+
+  const formatCurrency = (val) => {
+    return '₹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  async function loadSales(params = {}) {
+    let url = '/api/sales?limit=100';
+    if (params.start_date) url += `&start_date=${params.start_date}`;
+    if (params.end_date) url += `&end_date=${params.end_date}`;
+    if (params.product) url += `&product=${encodeURIComponent(params.product)}`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      // Update KPI banner with today's summary
+      if (data.today_summary) {
+        document.getElementById('salesPageTodayRev').textContent = formatCurrency(data.today_summary.revenue);
+        document.getElementById('salesPageTodayTx').textContent = `${data.today_summary.transactions} Orders`;
+        document.getElementById('salesPageTodayUnits').textContent = `${data.today_summary.units} Units`;
+        document.getElementById('salesPageTodayProfit').textContent = formatCurrency(data.today_summary.profit);
+      }
+
+      const sales = data.sales || [];
+      if (sales.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">No sales records found for this period.</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = sales.map(s => `
+        <tr>
+          <td style="font-weight: 700; color: #fff;">#${s.id}</td>
+          <td>
+            <div style="font-weight: 700; color: #fff;">${s.product_name}</div>
+          </td>
+          <td>
+            <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px; color: var(--text-secondary);">
+              ${s.category || 'General'}
+            </span>
+          </td>
+          <td>${s.quantity} ${s.unit}</td>
+          <td>₹${s.unit_price.toFixed(2)}</td>
+          <td style="font-weight: 800; color: var(--mint-glow); font-size: 1rem;">${formatCurrency(s.total)}</td>
+          <td style="color: var(--text-secondary); font-size: 0.85rem;">${s.created_at}</td>
+        </tr>
+      `).join('');
+
+    } catch (e) {
+      console.error('Failed to load sales:', e);
+    }
+  }
+
+  // Quick Date Buttons
+  document.querySelectorAll('.date-quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.date-quick-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const days = btn.getAttribute('data-days');
+      const now = new Date();
+      const formatDate = d => d.toISOString().split('T')[0];
+
+      if (days === 'all') {
+        startInput.value = '';
+        endInput.value = '';
+        loadSales({ product: searchInput.value });
+      } else if (days === '0') {
+        const today = formatDate(now);
+        startInput.value = today;
+        endInput.value = today;
+        loadSales({ start_date: today, end_date: today, product: searchInput.value });
+      } else if (days === '1') {
+        const yest = new Date(now);
+        yest.setDate(yest.getDate() - 1);
+        const yDate = formatDate(yest);
+        startInput.value = yDate;
+        endInput.value = yDate;
+        loadSales({ start_date: yDate, end_date: yDate, product: searchInput.value });
+      } else {
+        const past = new Date(now);
+        past.setDate(past.getDate() - parseInt(days));
+        startInput.value = formatDate(past);
+        endInput.value = formatDate(now);
+        loadSales({ start_date: formatDate(past), end_date: formatDate(now), product: searchInput.value });
+      }
+    });
+  });
+
+  // Custom filter click
+  document.getElementById('applyCustomDateBtn').addEventListener('click', () => {
+    loadSales({
+      start_date: startInput.value,
+      end_date: endInput.value,
+      product: searchInput.value
+    });
+  });
+
+  searchInput.addEventListener('input', () => {
+    loadSales({
+      start_date: startInput.value,
+      end_date: endInput.value,
+      product: searchInput.value
+    });
+  });
+
+  // Modal: Record Sale
+  const modal = document.getElementById('recordSaleModal');
+  const prodSelect = document.getElementById('saleProductSelect');
+  const qtyInput = document.getElementById('saleQuantityInput');
+  const valPreview = document.getElementById('saleValuePreview');
+
+  let productsList = [];
+
+  async function loadProductsForSale() {
+    const res = await fetch('/api/products');
+    const data = await res.json();
+    productsList = data.products || [];
+    prodSelect.innerHTML = productsList.map(p => `
+      <option value="${p.name}" data-price="${p.price}" data-unit="${p.unit}" data-stock="${p.quantity}">
+        ${p.name} (Stock: ${p.quantity} ${p.unit} - ₹${p.price})
+      </option>
+    `).join('');
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const opt = prodSelect.selectedOptions[0];
+    if (opt) {
+      const price = parseFloat(opt.getAttribute('data-price') || 0);
+      const qty = parseFloat(qtyInput.value || 0);
+      valPreview.textContent = formatCurrency(price * qty);
+    }
+  }
+
+  prodSelect.addEventListener('change', updatePreview);
+  qtyInput.addEventListener('input', updatePreview);
+
+  document.getElementById('openRecordSaleBtn').addEventListener('click', () => {
+    loadProductsForSale();
+    modal.classList.add('open');
+  });
+
+  document.querySelectorAll('.close-sale-modal-btn').forEach(b => {
+    b.addEventListener('click', () => modal.classList.remove('open'));
+  });
+
+  document.getElementById('recordSaleForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pName = prodSelect.value;
+    const qty = qtyInput.value;
+
+    try {
+      const res = await fetch('/api/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: `Sell ${qty} ${pName}`, confirmed: true })
+      });
+      const data = await res.json();
+      if (data.success) {
+        modal.classList.remove('open');
+        alert(data.reply);
+        loadSales();
+      } else {
+        alert(data.reply || data.error);
+      }
+    } catch (err) {
+      alert('Failed to record sale: ' + err.message);
+    }
+  });
+
+  // Initialize with Today's sales
+  const todayStr = new Date().toISOString().split('T')[0];
+  startInput.value = todayStr;
+  endInput.value = todayStr;
+  loadSales({ start_date: todayStr, end_date: todayStr });
+});
+</script>
+{% endblock %}

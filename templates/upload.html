@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}Dukaan Dost AI — Ingest Invoices, Excel, CSV & Audio Data{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+
+  <!-- Header -->
+  <div style="margin-bottom: 2rem; text-align: center;">
+    <div style="color: var(--mint-glow); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem;">
+      Universal Kirana Data Ingestion
+    </div>
+    <h1 style="font-size: 2.4rem; font-weight: 800; color: #fff; font-family: var(--font-display); letter-spacing: -1px;">
+      Import Invoices, Spreadsheets & Voice Bills
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem; max-width: 650px; margin: 0.5rem auto 0;">
+      Upload supplier PDFs, Excel stock lists, CSVs, bill photos, or voice recordings. Review and confirm extracted data before anything is added to your database.
+    </p>
+  </div>
+
+  <!-- Format Badges Banner -->
+  <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
+    <span class="btn-outline" style="font-size: 0.78rem; pointer-events: none;">📄 PDF (Bills & Reports)</span>
+    <span class="btn-outline" style="font-size: 0.78rem; pointer-events: none;">📊 Excel (.xlsx, .xls)</span>
+    <span class="btn-outline" style="font-size: 0.78rem; pointer-events: none;">📑 CSV (Product Catalogs)</span>
+    <span class="btn-outline" style="font-size: 0.78rem; pointer-events: none;">📷 Images (Receipts & Photos)</span>
+    <span class="btn-outline" style="font-size: 0.78rem; pointer-events: none;">🎙️ Audio (Voice Dictation)</span>
+  </div>
+
+  <!-- Drag-and-Drop Dropzone Card -->
+  <div id="dropzoneCard" class="glass-card" style="border: 2px dashed rgba(139, 92, 246, 0.4); padding: 3.5rem 2rem; text-align: center; cursor: pointer; transition: all 0.3s ease; margin-bottom: 2.5rem;">
+    <input type="file" id="fileInput" accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp,audio/*" style="display: none;">
+
+    <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(139, 92, 246, 0.15); color: var(--purple-glow); display: grid; place-items: center; font-size: 2rem; margin: 0 auto 1.25rem;">
+      📂
+    </div>
+
+    <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">
+      Drag & Drop your invoice or file here
+    </h3>
+    <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem;">
+      or click to browse from your computer (Up to 25MB)
+    </p>
+
+    <button type="button" class="btn-primary btn-mint" onclick="document.getElementById('fileInput').click()">
+      Browse Files
+    </button>
+    <button type="button" id="recordAudioBtn" class="btn-outline" style="margin-left: 0.5rem;">
+      🎙️ Record Audio
+    </button>
+    <button type="button" id="stopAudioBtn" class="btn-outline" style="display: none;">
+      ⏹ Stop Recording
+    </button>
+    <p id="recordAudioStatus" role="status" style="color: var(--text-secondary); margin-top: 0.75rem;"></p>
+  </div>
+
+  <!-- Upload Progress Indicator (Hidden by default) -->
+  <div id="uploadProgressContainer" class="glass-card" style="display: none; padding: 1.75rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+      <span id="uploadFileName" style="font-weight: 700; color: #fff;">Processing invoice.pdf...</span>
+      <span id="uploadProgressPercent" style="color: var(--mint-glow); font-weight: 800;">50%</span>
+    </div>
+    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden;">
+      <div id="uploadProgressBar" style="width: 50%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #10b981); transition: width 0.3s ease;"></div>
+    </div>
+    <p id="uploadStatusText" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.65rem;">
+      Extracting line items and product details...
+    </p>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PREVIEW & CONFIRMATION SECTION (Shown after processing)  -->
+  <!-- ======================================================== -->
+  <div id="previewSection" class="glass-card" style="display: none; padding: 2rem;">
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--mint-glow); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">
+          <span>✓</span> Data Extracted Successfully
+        </div>
+        <h2 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin-top: 0.25rem;">
+          Review & Confirm Items Before Saving
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.88rem;">
+          You can edit any cell directly below. Only confirmed items will update your SQLite inventory.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button id="addNewRowBtn" class="btn-outline">
+          ＋ Add Line Item
+        </button>
+        <button id="confirmSaveBtn" class="btn-primary btn-mint">
+          ✓ Confirm & Save to Inventory
+        </button>
+      </div>
+    </div>
+
+    <!-- Editable Data Grid -->
+    <div class="data-table-container" style="margin-bottom: 1.5rem;">
+      <table class="data-table" id="previewTable">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Price (₹)</th>
+            <th>Cost Price (₹)</th>
+            <th>Alert Limit</th>
+            <th style="text-align: center;">Remove</th>
+          </tr>
+        </thead>
+        <tbody id="previewTableBody">
+          <!-- Populated from extracted items -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Raw Text Tab (Expandable) -->
+    <details style="background: rgba(10, 14, 28, 0.6); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.85rem 1rem;">
+      <summary style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); cursor: pointer;">
+        View Raw OCR / Document Text
+      </summary>
+      <pre id="rawTextPreview" style="margin-top: 0.75rem; font-size: 0.78rem; color: var(--text-muted); white-space: pre-wrap; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 4px;"></pre>
+    </details>
+
+  </div>
+
+  <!-- Success Confirmation Banner -->
+  <div id="successBanner" class="glass-card" style="display: none; padding: 2.5rem; text-align: center; border-color: rgba(16, 185, 129, 0.5);">
+    <div style="font-size: 3rem; margin-bottom: 0.75rem;">🎉</div>
+    <h2 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">
+      Import Completed Successfully!
+    </h2>
+    <p id="successMessageText" style="color: var(--mint-glow); font-size: 1.05rem; margin-bottom: 1.75rem;">
+      Items have been imported and stock balances have been updated.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <a href="/inventory" class="btn-primary btn-mint">
+        View in Inventory Catalogue →
+      </a>
+      <a href="/dashboard" class="btn-outline">
+        Go to Dashboard
+      </a>
+      <button class="btn-outline" onclick="resetUpload()">
+        Upload Another File
+      </button>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const dropzone = document.getElementById('dropzoneCard');
+  const fileInput = document.getElementById('fileInput');
+  const progressBox = document.getElementById('uploadProgressContainer');
+  const progressBar = document.getElementById('uploadProgressBar');
+  const progressPct = document.getElementById('uploadProgressPercent');
+  const progressFileName = document.getElementById('uploadFileName');
+  const previewSection = document.getElementById('previewSection');
+  const previewTbody = document.getElementById('previewTableBody');
+  const rawTextPre = document.getElementById('rawTextPreview');
+  const successBanner = document.getElementById('successBanner');
+  const confirmBtn = document.getElementById('confirmSaveBtn');
+  const recordAudioBtn = document.getElementById('recordAudioBtn');
+  const stopAudioBtn = document.getElementById('stopAudioBtn');
+  const recordAudioStatus = document.getElementById('recordAudioStatus');
+  let audioRecorder;
+  let recordingChunks = [];
+  let recordingStream;
+
+  // Drag and drop events
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'var(--mint-glow)';
+      dropzone.style.background = 'rgba(16, 185, 129, 0.08)';
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'rgba(139, 92, 246, 0.4)';
+      dropzone.style.background = 'var(--bg-card)';
+    });
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileUpload(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files.length > 0) {
+      handleFileUpload(fileInput.files[0]);
+    }
+  });
+
+  recordAudioBtn.addEventListener('click', async () => {
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+      recordAudioStatus.textContent = 'Microphone recording is not supported in this browser. Use HTTPS or localhost, or upload an audio file.';
+      return;
+    }
+
+    try {
+      recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordingChunks = [];
+      const supportedTypes = [
+        'audio/webm;codecs=opus',
+        'audio/ogg;codecs=opus',
+        'audio/mp4'
+      ];
+      const mimeType = supportedTypes.find(type => MediaRecorder.isTypeSupported(type));
+      audioRecorder = mimeType
+        ? new MediaRecorder(recordingStream, { mimeType })
+        : new MediaRecorder(recordingStream);
+      audioRecorder.addEventListener('dataavailable', event => {
+        if (event.data.size) recordingChunks.push(event.data);
+      });
+      audioRecorder.addEventListener('stop', () => {
+        recordingStream.getTracks().forEach(track => track.stop());
+        stopAudioBtn.style.display = 'none';
+        recordAudioBtn.style.display = '';
+        const blobType = audioRecorder.mimeType || recordingChunks[0]?.type || 'audio/webm';
+        const extension = blobType.includes('ogg') ? 'ogg'
+          : (blobType.includes('mp4') ? 'm4a' : 'webm');
+        const audioFile = new File(recordingChunks, `recording.${extension}`, { type: blobType });
+        if (!audioFile.size) {
+          recordAudioStatus.textContent = 'No audio was captured. Please try recording again.';
+          return;
+        }
+        recordAudioStatus.textContent = 'Uploading recording for transcription...';
+        handleFileUpload(audioFile);
+      }, { once: true });
+      audioRecorder.start();
+      recordAudioBtn.style.display = 'none';
+      stopAudioBtn.style.display = '';
+      recordAudioStatus.textContent = 'Recording. Select Stop Recording when you are finished speaking.';
+    } catch (error) {
+      recordingStream?.getTracks().forEach(track => track.stop());
+      recordAudioStatus.textContent = `Could not start microphone: ${error.message}. Allow microphone access and try again.`;
+    }
+  });
+
+  stopAudioBtn.addEventListener('click', () => {
+    if (audioRecorder?.state === 'recording') audioRecorder.stop();
+  });
+
+  async function handleFileUpload(file) {
+    recordAudioStatus.textContent = '';
+    dropzone.style.display = 'none';
+    progressBox.style.display = 'block';
+    previewSection.style.display = 'none';
+    successBanner.style.display = 'none';
+
+    progressFileName.textContent = `Processing: ${file.name}`;
+    progressBar.style.width = '30%';
+    progressPct.textContent = '30%';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      progressBar.style.width = '65%';
+      progressPct.textContent = '65%';
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      progressBar.style.width = '100%';
+      progressPct.textContent = '100%';
+
+      setTimeout(() => {
+        progressBox.style.display = 'none';
+        if (data.success) {
+          renderExtractedPreview(data.items || [], data.raw_text);
+        } else {
+          alert('Upload error: ' + data.error);
+          dropzone.style.display = 'block';
+        }
+      }, 500);
+
+    } catch (err) {
+      progressBox.style.display = 'none';
+      dropzone.style.display = 'block';
+      alert('Error uploading file: ' + err.message);
+    }
+  }
+
+  function renderExtractedPreview(items, rawText) {
+    previewSection.style.display = 'block';
+    if (rawText) {
+      rawTextPre.textContent = rawText;
+    } else {
+      rawTextPre.textContent = 'No additional OCR text extracted.';
+    }
+
+    if (items.length === 0) {
+      // Add empty editable row for shopkeeper convenience
+      items.push({
+        name: 'New Product',
+        category: 'General',
+        quantity: 10,
+        unit: 'kg',
+        price: 50,
+        cost_price: 40,
+        low_stock_threshold: 5
+      });
+    }
+
+    previewTbody.innerHTML = '';
+    items.forEach(it => addPreviewRow(it));
+  }
+
+  function addPreviewRow(item = {}) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" class="cell-name" value="${item.name || ''}" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px; color: #fff;"></td>
+      <td><input type="text" class="cell-cat" value="${item.category || 'General'}" style="width: 90px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px; color: #fff;"></td>
+      <td><input type="number" step="0.1" class="cell-qty" value="${item.quantity || 1}" style="width: 80px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px; color: #fff;"></td>
+      <td><input type="text" class="cell-unit" value="${item.unit || 'pcs'}" style="width: 60px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px; color: #fff;"></td>
+      <td><input type="number" step="0.5" class="cell-price" value="${item.price || 0}" style="width: 80px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px; color: var(--mint-glow);"></td>
+      <td><input type="number" step="0.5" class="cell-cost" value="${item.cost_price || 0}" style="width: 80px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px; color: #fff;"></td>
+      <td><input type="number" step="1" class="cell-thresh" value="${item.low_stock_threshold || 5}" style="width: 60px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 4px; padding: 4px 8px; color: #fff;"></td>
+      <td style="text-align: center;"><button type="button" class="btn-outline" style="padding: 2px 8px; color: var(--red-accent);" onclick="this.closest('tr').remove()">✕</button></td>
+    `;
+    previewTbody.appendChild(tr);
+  }
+
+  document.getElementById('addNewRowBtn').addEventListener('click', () => {
+    addPreviewRow({ name: '', category: 'General', quantity: 10, unit: 'kg', price: 50, cost_price: 40, low_stock_threshold: 5 });
+  });
+
+  confirmBtn.addEventListener('click', async () => {
+    const rows = previewTbody.querySelectorAll('tr');
+    const items = [];
+
+    rows.forEach(r => {
+      const name = r.querySelector('.cell-name').value.trim();
+      if (name) {
+        items.push({
+          name: name,
+          category: r.querySelector('.cell-cat').value.trim(),
+          quantity: parseFloat(r.querySelector('.cell-qty').value || 0),
+          unit: r.querySelector('.cell-unit').value.trim(),
+          price: parseFloat(r.querySelector('.cell-price').value || 0),
+          cost_price: parseFloat(r.querySelector('.cell-cost').value || 0),
+          low_stock_threshold: parseFloat(r.querySelector('.cell-thresh').value || 5)
+        });
+      }
+    });
+
+    if (items.length === 0) {
+      alert('Please have at least one product row with a name.');
+      return;
+    }
+
+    try {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Saving...';
+
+      const res = await fetch('/api/upload/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: items })
+      });
+
+      const data = await res.json();
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = '✓ Confirm & Save to Inventory';
+
+      if (data.success) {
+        previewSection.style.display = 'none';
+        successBanner.style.display = 'block';
+        document.getElementById('successMessageText').textContent = data.message;
+      } else {
+        alert(data.error);
+      }
+    } catch (e) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = '✓ Confirm & Save to Inventory';
+      alert('Save error: ' + e.message);
+    }
+  });
+
+  window.resetUpload = function() {
+    fileInput.value = '';
+    previewSection.style.display = 'none';
+    successBanner.style.display = 'none';
+    dropzone.style.display = 'block';
+  };
+});
+</script>
+{% endblock %}
