@@ -1,0 +1,51 @@
+#REAL WROLD PROBLEM
+DUKAAN DOST AI
+
+Your Smart AI-Powered Shop Assistant
+
+Project Category: Voice AI | Retail Automation | AI Agent
+
+1. Problem Statement
+
+Small shopkeepers struggle to manage customer purchases, especially during busy hours. They often write transactions manually on paper, while larger shops depend on barcode scanners. When multiple customers arrive, recording purchases becomes slow, difficult and prone to human errors.
+
+2. Proposed Solution
+
+Dukaan Dost AI is an intelligent, voice-first shop management assistant that simplifies retail operations through two working modes.
+
+Mode 1 – Rush Hour Mode (Voice AI)
+
+When many customers arrive, shopkeepers can activate the voice agent and speak customer names, purchased products and quantities. The AI understands the instructions, extracts the details and automatically saves purchase records.
+
+Mode 2 – Normal Mode (Barcode + Voice)
+
+During regular business hours, shopkeepers can scan product barcodes or use voice commands to add products and quantities directly to the sales records.
+
+3. Key Features
+
+- Voice-based customer purchase recording.
+- It will also take the recording when costumer saying the product details 
+- Speech recognition using Gnani Prisma.
+- Natural spoken responses using Gnani Timbre.
+- AI-powered customer and product information extraction.
+- Barcode-based product identification.
+- Bill and image information extraction using OCR.
+- Automatic sales and customer record management.
+- Daily sales reports and inventory tracking.
+- He can all with just his voice
+- He can all records with just voice 
+
+4. Technology Stack
+
+Python | Flask | Gnani Prisma | Gnani Timbre | AI Agent | OCR | Barcode Scanner | HTML | CSS | Database
+
+5. Expected Impact
+
+Dukaan Dost AI reduces paperwork, saves shopkeepers' time, simplifies purchase recording and makes retail management easier during both normal and peak business hours.
+
+6. Our Vision
+
+Making every traditional retail shop smarter through conversational AI and intelligent automation.
+
+# for the Gnani AI Voice AI Challenge
+#Gnani AI
